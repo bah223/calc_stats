@@ -21,7 +21,7 @@ all_dfs = []
 for file in files:
     try:
         print(f"Обработка: {Path(file).name}")
-        df = pd.read_excel(file, header=None)
+        df = pd.read_excel(file, header=None, skiprows=1)
         df.dropna(how='all', inplace=True)
         if not df.empty:
             all_dfs.append(df)
