@@ -32,6 +32,7 @@ for file_path in sorted(files):
             'CANCELLED': {'count': 0, 'amount': 0.0},
             'DECLINED': {'count': 0, 'amount': 0.0},
             'REFUNDED': {'count': 0, 'amount': 0.0},
+            'ERROR': {'count': 0, 'amount': 0.0},
         }
 
         # Подсчёт
@@ -55,6 +56,7 @@ for file_path in sorted(files):
         print(f"- Успешных транзакций (CAPTURED): {report['CAPTURED']['count']} шт на сумму {fmt_rub(report['CAPTURED']['amount'])} RUB")
         print(f"- Неоплаченных транзакций (CANCELLED): {report['CANCELLED']['count']} шт на сумму {fmt_rub(report['CANCELLED']['amount'])} RUB")
         print(f"- Отклоненных транзакций (DECLINED): {report['DECLINED']['count']} шт на сумму {fmt_rub(report['DECLINED']['amount'])} RUB")
+        print(f"- Ошибочных транзакций (ERROR): {report['ERROR']['count']} шт на сумму {fmt_rub(report['ERROR']['amount'])} RUB")
         print(f"- Возвраты (REFUNDED): {report['REFUNDED']['count']} шт на сумму {fmt_rub(report['REFUNDED']['amount'])} RUB")
 
     except Exception as e:
