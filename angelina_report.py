@@ -51,6 +51,7 @@ for file_path in sorted(files):
             return f"{value:,.2f}".replace(",", " ").replace(".", ",")
 
         # Вывод
+        print('=== Результаты анализа ===')
         print(f"- Успешных транзакций (CAPTURED): {report['CAPTURED']['count']} шт на сумму {fmt_rub(report['CAPTURED']['amount'])} RUB")
         print(f"- Неоплаченных транзакций (CANCELLED): {report['CANCELLED']['count']} шт на сумму {fmt_rub(report['CANCELLED']['amount'])} RUB")
         print(f"- Отклоненных транзакций (DECLINED): {report['DECLINED']['count']} шт на сумму {fmt_rub(report['DECLINED']['amount'])} RUB")
