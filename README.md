@@ -82,4 +82,3 @@ python angelina_report.py
 
 ✅ Обработка завершена.
 ```
-
