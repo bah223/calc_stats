@@ -15,8 +15,9 @@ echo.
 echo Select script to run:
 echo 1 - angelina_report.py
 echo 2 - calc_stats.py
+echo 3 - 12oo.py
 echo.
-set /p choice="Enter choice 1 or 2: "
+set /p choice="Enter choice 1-3: "
 
 if "%choice%"=="1" (
     echo Running angelina_report.py ...
@@ -25,6 +26,10 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="2" (
     echo Running calc_stats.py ...
     python "%~dp0calc_stats.py"
+    goto :end
+) else if "%choice%"=="3" (
+    echo Running 12oo.py ...
+    python "%~dp012oo.py"
     goto :end
 ) else (
     echo Invalid choice: %choice%
