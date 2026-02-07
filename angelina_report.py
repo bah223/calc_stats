@@ -1,15 +1,19 @@
 import pandas as pd
 import glob
 import os
+import warnings
 
-# Находим все файлы, соответствующие шаблону
+# Suppress openpyxl style warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
+
+# Find all files matching the pattern
 files = glob.glob("Transaction-*.xlsx")
 
 if not files:
-    print("❌ Нет файлов по шаблону 'Transaction-*.xlsx' в текущей директории.")
+    print("❌ No files matching 'Transaction-*.xlsx' found in the current directory.")
     exit()
 
-# Инициализация общего отчета для всех файлов
+# Initialize total report for all files
 total_report = {
     'CAPTURED': {'count': 0, 'amount': 0.0},
     'CANCELLED': {'count': 0, 'amount': 0.0},
@@ -19,24 +23,24 @@ total_report = {
     'PAID_OUT': {'count': 0, 'amount': 0.0},
 }
 
-# Обрабатываем каждый файл
+# Process each file
 for file_path in sorted(files):
-    print(f"\n📄 Обработка файла: {os.path.basename(file_path)}")
+    print(f"\n📄 Processing file: {os.path.basename(file_path)}")
     print("-" * 60)
 
     try:
-        # Читаем Excel без заголовков (как в твоих файлах)
+        # Read Excel without headers
         df = pd.read_excel(file_path, header=None, engine='openpyxl')
 
-        # Ожидаем минимум 8 колонок (статус — индекс 6, сумма — индекс 7)
+        # Expect at least 8 columns (status index 6, amount index 7)
         if df.shape[1] < 8:
-            print("⚠️  Файл имеет меньше 8 колонок — пропускаем.")
+            print("⚠️  File has fewer than 8 columns — skipping.")
             continue
 
-        statuses = df.iloc[:, 6]  # Статус
-        amounts = df.iloc[:, 7]   # Сумма
+        statuses = df.iloc[:, 6]  # Status
+        amounts = df.iloc[:, 7]   # Amount
 
-        # Подсчёт
+        # Counting
         for status, amount in zip(statuses, amounts):
             if pd.isna(status) or pd.isna(amount):
                 continue
@@ -46,24 +50,24 @@ for file_path in sorted(files):
                 try:
                     total_report[status]['amount'] += float(amount)
                 except (ValueError, TypeError):
-                    continue  # пропускаем некорректные суммы
+                    continue  # skip invalid amounts
 
     except Exception as e:
-        print(f"❌ Ошибка при обработке {file_path}: {e}")
+        print(f"❌ Error processing {file_path}: {e}")
 
-# Форматирование суммы по-русски: 1 234 567,89
+# Format amount: 1,234,567.89
 def fmt_rub(value):
-    return f"{value:,.2f}".replace(",", " ").replace(".", ",")
+    return f"{value:,.2f}"
 
-# Вывод итогового отчета
+# Output final report
 print("\n" + "="*60)
-print("📊 ИТОГОВЫЙ ОТЧЕТ ПО ВСЕМ ФАЙЛАМ")
+print("📊 FINAL REPORT FOR ALL FILES")
 print("="*60)
-print(f"- Успешных транзакций (CAPTURED): {total_report['CAPTURED']['count']} шт на сумму {fmt_rub(total_report['CAPTURED']['amount'])} RUB")
-print(f"- Неоплаченных транзакций (CANCELLED): {total_report['CANCELLED']['count']} шт на сумму {fmt_rub(total_report['CANCELLED']['amount'])} RUB")
-print(f"- Отклоненных транзакций (DECLINED): {total_report['DECLINED']['count']} шт на сумму {fmt_rub(total_report['DECLINED']['amount'])} RUB")
-print(f"- Ошибочных транзакций (ERROR): {total_report['ERROR']['count']} шт на сумму {fmt_rub(total_report['ERROR']['amount'])} RUB")
-print(f"- Возвраты (REFUNDED): {total_report['REFUNDED']['count']} шт на сумму {fmt_rub(total_report['REFUNDED']['amount'])} RUB")
-print(f"- Выплаты (PAID_OUT): {total_report['PAID_OUT']['count']} шт на сумму {fmt_rub(total_report['PAID_OUT']['amount'])} RUB")
+print(f"- Successful transactions (CAPTURED): {total_report['CAPTURED']['count']} pcs for {fmt_rub(total_report['CAPTURED']['amount'])} RUB")
+print(f"- Unpaid transactions (CANCELLED): {total_report['CANCELLED']['count']} pcs for {fmt_rub(total_report['CANCELLED']['amount'])} RUB")
+print(f"- Declined transactions (DECLINED): {total_report['DECLINED']['count']} pcs for {fmt_rub(total_report['DECLINED']['amount'])} RUB")
+print(f"- Error transactions (ERROR): {total_report['ERROR']['count']} pcs for {fmt_rub(total_report['ERROR']['amount'])} RUB")
+print(f"- Refunds (REFUNDED): {total_report['REFUNDED']['count']} pcs for {fmt_rub(total_report['REFUNDED']['amount'])} RUB")
+print(f"- Payouts (PAID_OUT): {total_report['PAID_OUT']['count']} pcs for {fmt_rub(total_report['PAID_OUT']['amount'])} RUB")
 
-print("\n✅ Обработка завершена.")
+print("\n✅ Processing complete.")

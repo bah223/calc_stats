@@ -3,34 +3,34 @@ import glob
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
-# === Настройка временной зоны Москвы ===
+# === Moscow Timezone Setup ===
 MOSCOW_TZ = timezone(timedelta(hours=3))
 
-# === Собираем все подходящие Excel-файлы ===
+# === Collect matching Excel files ===
 files = glob.glob("Transaction-List-Date_*.xlsx")
 
 if not files:
-    print("❌ Не найдено файлов вида Transaction-List-Date_*.xlsx")
+    print("❌ No files found matching Transaction-List-Date_*.xlsx")
     exit(1)
 
-print(f"📁 Найдено файлов: {len(files)}")
+print(f"📁 Files found: {len(files)}")
 for f in files:
     print(f" - {f}")
 
-DEBUG = False  # Установи True для подробного логирования
+DEBUG = False  # Set to True for detailed logging
 
 total_count = 0
 merchant_counts = {}
-selected_time_column = None  # Будет заполнено после выбора пользователя
+selected_time_column = None  # Will be filled after user choice
 
 
 def get_merchant_column_index(df):
-    """Ищет индекс колонки с названием мерчанта в заголовке (первой строке)."""
+    """Searches for the merchant name column index in the header (first row)."""
     try:
         first_row = df.iloc[0]
         for idx, cell in enumerate(first_row):
             cell_str = str(cell).strip().lower()
-            if 'merchant' in cell_str or 'мерчант' in cell_str or 'name' in cell_str:
+            if 'merchant' in cell_str or 'name' in cell_str:
                 return idx
     except Exception:
         pass
@@ -38,13 +38,13 @@ def get_merchant_column_index(df):
 
 
 def get_all_time_columns(df):
-    """Ищет ВСЕ колонки с временными данными."""
+    """Searches for ALL columns with time data."""
     time_columns = []
     try:
         first_row = df.iloc[0]
         for idx, cell in enumerate(first_row):
             cell_str = str(cell).strip().lower()
-            if any(keyword in cell_str for keyword in ['created', 'date', 'time', 'timestamp', 'дата', 'время', 'updated', 'completion']):
+            if any(keyword in cell_str for keyword in ['created', 'date', 'time', 'timestamp', 'updated', 'completion']):
                 time_columns.append((idx, str(df.iloc[0, idx]).strip()))
     except Exception:
         pass
@@ -52,7 +52,7 @@ def get_all_time_columns(df):
 
 
 def extract_merchant_from_row(df, row_idx, merchant_col_idx):
-    """Извлекает название мерчанта из строки по индексу колонки."""
+    """Extracts merchant name from a row by column index."""
     try:
         if merchant_col_idx >= 0 and merchant_col_idx < df.shape[1]:
             merchant = str(df.iat[row_idx, merchant_col_idx]).strip()
@@ -63,7 +63,7 @@ def extract_merchant_from_row(df, row_idx, merchant_col_idx):
     return None
 
 
-# === Определяем колонку для подсчета до выполнения обработки ===
+# === Determine column for counting before processing ===
 print("\n" + "="*60)
 first_file = files[0]
 try:
@@ -75,30 +75,30 @@ try:
     time_cols = get_all_time_columns(sample_df)
     
     if time_cols:
-        print("🕐 Найдены временные колонки:")
+        print("🕐 Time columns found:")
         for i, (col_idx, col_name) in enumerate(time_cols, 1):
             print(f"   {i}. [{col_idx}] {col_name}")
         
-        print("\nВыбери по какой колонке считать транзакции до 12:00:")
-        choice = input("Введи номер (1-{}): ".format(len(time_cols)))
+        print("\nChoose which column to use for counting transactions before 12:00:")
+        choice = input("Enter number (1-{}): ".format(len(time_cols)))
         
         try:
             choice_idx = int(choice) - 1
             if 0 <= choice_idx < len(time_cols):
                 selected_time_column = time_cols[choice_idx][0]
                 selected_time_name = time_cols[choice_idx][1]
-                print(f"✅ Выбрана колонка: [{selected_time_column}] {selected_time_name}\n")
+                print(f"✅ Selected column: [{selected_time_column}] {selected_time_name}\n")
             else:
-                print(f"❌ Неверный выбор. Используется по умолчанию колонка 2")
+                print(f"❌ Invalid choice. Using default column 2")
                 selected_time_column = 2
         except ValueError:
-            print(f"❌ Неверный ввод. Используется по умолчанию колонка 2")
+            print(f"❌ Invalid input. Using default column 2")
             selected_time_column = 2
     else:
-        print("⚠️ Временные колонки не найдены автоматически. Используется колонка 2")
+        print("⚠️ Time columns not found automatically. Using column 2")
         selected_time_column = 2
 except Exception as e:
-    print(f"⚠️ Ошибка при определении колонок: {e}. Используется колонка 2")
+    print(f"⚠️ Error determining columns: {e}. Using column 2")
     selected_time_column = 2
 
 print("="*60 + "\n")
@@ -110,28 +110,28 @@ for file in files:
         if df.empty:
             continue
 
-        # Пропускаем строку "Transactions", если она есть в первой ячейке
+        # Skip "Transactions" row if present
         first_cell = str(df.iloc[0, 0]).strip()
         if first_cell.lower() == "transactions":
             df = df.iloc[1:].reset_index(drop=True)
 
-        # Проверяем наличие данных
+        # Check for data
         if len(df) < 2:
-            print(f"⚠️ Пропущен {file}: недостаточно данных")
+            print(f"⚠️ Skipped {file}: insufficient data")
             continue
 
-        # Ищем индексы колонок
+        # Find column indices
         merchant_col_idx = get_merchant_column_index(df)
-        created_col_idx = selected_time_column  # Используем выбранную пользователем колонку
+        created_col_idx = selected_time_column
 
         if DEBUG:
             print(f"\n🔍 DEBUG: {Path(file).name}")
-            print(f"   Всего колонок: {df.shape[1]}")
-            print(f"   Строк: {len(df)}")
-            print(f"   Найден индекс мерчанта: {merchant_col_idx}")
-            print(f"   Найден индекс времени: {created_col_idx}")
+            print(f"   Total columns: {df.shape[1]}")
+            print(f"   Rows: {len(df)}")
+            print(f"   Merchant index: {merchant_col_idx}")
+            print(f"   Time index: {created_col_idx}")
         
-        # Считаем транзакции до 12:00 по Москве и собираем мерчантов
+        # Count transactions before 12:00 Moscow time
         merchants_in_file = {}
         count_before_12 = 0
         count_total = 0
@@ -150,7 +150,7 @@ for file in files:
                 continue
             
             try:
-                # Пробуем разные форматы времени
+                # Try different time formats
                 dt_utc = None
                 try:
                     dt_utc = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
@@ -175,28 +175,28 @@ for file in files:
                 count_invalid_time += 1
                 continue
 
-        # Аккумулируем результаты
+        # Accumulate results
         for merchant, count in merchants_in_file.items():
             merchant_counts[merchant] = merchant_counts.get(merchant, 0) + count
             total_count += count
         
-        # Выводим результат для файла
+        # Output result for file
         if merchants_in_file:
             merchants_list = ", ".join([f"{m}: {c}" for m, c in merchants_in_file.items()])
             print(f"✅ {Path(file).name}")
-            print(f"   Всего строк: {count_total} | До 12:00: {count_before_12} | Ошибок время: {count_invalid_time}")
-            print(f"   Мерчанты: {merchants_list}")
+            print(f"   Total rows: {count_total} | Before 12:00: {count_before_12} | Time errors: {count_invalid_time}")
+            print(f"   Merchants: {merchants_list}")
         else:
             print(f"⚠️ {Path(file).name}")
-            print(f"   Всего строк: {count_total} | До 12:00: {count_before_12} | Ошибок время: {count_invalid_time}")
+            print(f"   Total rows: {count_total} | Before 12:00: {count_before_12} | Time errors: {count_invalid_time}")
 
     except Exception as e:
-        print(f"❌ Ошибка при обработке {file}: {e}")
+        print(f"❌ Error processing {file}: {e}")
 
-# === Результат ===
+# === Result ===
 print("\n" + "="*50)
-print(f"📊 Всего транзакций до 12:00 по Москве: {total_count}")
-print("\nСписок мерчантов и их транзакций до 12:00:")
+print(f"📊 Total transactions before 12:00 Moscow time: {total_count}")
+print("\nList of merchants and their transactions before 12:00:")
 for m, c in sorted(merchant_counts.items(), key=lambda x: x[1], reverse=True):
-    print(f"- {m} — {c}")
+    print(f" - {m}: {c}")
 print("="*50)

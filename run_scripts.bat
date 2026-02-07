@@ -30,3 +30,7 @@ if exist "%~dp0run_scripts_menu.ps1" (
 )
 
 if %ERRORLEVEL% NEQ 0 pause
+REM --- Always pause at the end so user can copy output ---
+echo.
+echo Скрипт завершён. Для выхода нажмите любую клавишу...
+pause >nul

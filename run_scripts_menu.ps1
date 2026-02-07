@@ -1,27 +1,21 @@
-# Analysis Scripts Menu for PowerShell
-# UTF-8 support for Cyrillic characters
+# Clear screen
+Clear-Host
 
-$host.UI.RawUI.BackgroundColor = 'Black'
-$host.UI.RawUI.ForegroundColor = 'White'
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
-Write-Host ''
 Write-Host '================================================================================' -ForegroundColor Cyan
-Write-Host '                          ANALYSIS SCRIPTS MENU' -ForegroundColor Cyan
+Write-Host '                            SCRIPTS LAUNCHER' -ForegroundColor Cyan
 Write-Host '================================================================================' -ForegroundColor Cyan
 Write-Host ''
 Write-Host '1 - angelina_report.py' -ForegroundColor Yellow
-Write-Host '   Report with transaction counts by status (CAPTURED, CANCELLED, DECLINED, REFUNDED)' -ForegroundColor Gray
+Write-Host '   Standard report generation' -ForegroundColor Gray
 Write-Host ''
 Write-Host '2 - calc_stats.py' -ForegroundColor Yellow
-Write-Host '   Overall statistics: total operations, success rate, daily turnover' -ForegroundColor Gray
+Write-Host '   Quick statistics calculation from Transaction-*.xlsx files' -ForegroundColor Gray
 Write-Host ''
 Write-Host '3 - 12oo.py' -ForegroundColor Yellow
-Write-Host '   Count transactions before 12:00 Moscow time, aggregated by merchant' -ForegroundColor Gray
+Write-Host '   Alternative statistics calculation' -ForegroundColor Gray
 Write-Host ''
-Write-Host '4 - mosteh.py (REQUIRES PARAMETERS!)' -ForegroundColor Yellow
-Write-Host '   MosTech report with date filtering' -ForegroundColor Gray
-Write-Host '   Usage: mosteh.py --start_date YYYY-MM-DD --end_date YYYY-MM-DD' -ForegroundColor Gray
+Write-Host '4 - mosteh.py' -ForegroundColor Yellow
+Write-Host '   Report generation for a specific date range' -ForegroundColor Gray
 Write-Host '   Example: mosteh.py --start_date 2025-01-15 --end_date 2025-01-15' -ForegroundColor Gray
 Write-Host ''
 Write-Host '5 - rep0000.py' -ForegroundColor Yellow
@@ -69,5 +63,5 @@ switch ($choice) {
 }
 
 Write-Host ''
-Write-Host 'Press any key to exit...' -ForegroundColor Gray
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+Write-Host 'Script finished. Window will close in 10 seconds or press Ctrl+C to abort...' -ForegroundColor Gray
+Start-Sleep -Seconds 10

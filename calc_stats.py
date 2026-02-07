@@ -6,30 +6,30 @@ from pathlib import Path
 files = glob.glob("Transaction-*.xlsx")
 
 if not files:
-    print("Файлы не найдены. Убедитесь, что в папке есть файлы, начинающиеся с 'Transaction-' и имеющие расширение .xlsx")
-    print("Доступные файлы:")
+    print("Files not found. Ensure there are files starting with 'Transaction-' and ending with '.xlsx'")
+    print("Available files:")
     for f in Path('.').glob('*'):
         if f.is_file():
             print(f"- {f.name}")
     exit(1)
 
-print(f"Найдено файлов: {len(files)}")
+print(f"Files found: {len(files)}")
 for i, file in enumerate(files, 1):
     print(f"{i}. {file}")
 
 all_dfs = []
 for file in files:
     try:
-        print(f"Обработка: {Path(file).name}")
+        print(f"Processing: {Path(file).name}")
         df = pd.read_excel(file, header=None, skiprows=1)
         df.dropna(how='all', inplace=True)
         if not df.empty:
             all_dfs.append(df)
     except Exception as e:
-        print(f"Ошибка при обработке {file}: {e}")
+        print(f"Error processing {file}: {e}")
 
 if not all_dfs:
-    print("Нет данных для обработки.")
+    print("No data to process.")
     exit(1)
 
 # Объединяем
@@ -51,8 +51,8 @@ total_operations = len(full_df)
 successful_operations = len(successful)
 success_rate = successful_operations / total_operations * 100
 
-print("\n=== Результаты анализа ===")
-print(f"Всего операций: {total_operations}")
-print(f"Успешных операций: {successful_operations}")
+print("\n=== Analysis Results ===")
+print(f"Total operations: {total_operations}")
+print(f"Successful operations: {successful_operations}")
 print(f"Success Rate: {success_rate:.2f}%")
-print(f"Оборот за сутки: {total_amount:,.2f} RUB")
+print(f"Daily Turnover: {total_amount:,.2f} RUB")
